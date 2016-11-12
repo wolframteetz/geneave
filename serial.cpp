@@ -19,16 +19,14 @@ Serial::Serial(QWidget *parent) :
     serial->setStopBits(QSerialPort::OneStop);
     serial->setFlowControl(QSerialPort::NoFlowControl);
     serial->setDataBits(QSerialPort::Data8);
-    serialPortReader = new SerialPortReader(serial);
-}
+    serialPortReader = new SerialPortReader(serial, ui->textBrowserStatus);
+    serial->open(QIODevice::ReadWrite);
 
-/*void Serial::initialize()
-{
-    connect(ui->pushButtonExecute, SIGNAL(clicked()), this, SLOT(on_pushButtonExecute_clicked()));
-}*/
+}
 
 Serial::~Serial()
 {
+    serial->close();
     delete ui;
 }
 
@@ -51,19 +49,16 @@ void Serial::on_pushButtonExecute_clicked()
 
             ui->textBrowserStatus->append(QString("<span style=\"color:#008800;\">").append(s).append(QString("</span>")));
 
-
-            serial->setPortName(ui->comboBoxSerialPort->currentText());
-            if(this->serial->open(QIODevice::WriteOnly))
+            if (serial->isOpen())
             {
-
                 QByteArray dayArray;
                 dayArray.append(s);
-                this->serial->write(dayArray);
-                this->serial->waitForBytesWritten(-1);
-                this->serial->close();
+                dayArray.append("X");
+                serial->write(dayArray);
+                serial->waitForBytesWritten(-1);
                 ui->textBrowserStatus->append(QString("Written."));
             } else {
-                ui->textBrowserStatus->append(QString("Error opening serial port ").append(ui->comboBoxSerialPort->currentText()).append(QString(". Not written.")));
+                ui->textBrowserStatus->append(QString("Serial port is not open.").append(ui->comboBoxSerialPort->currentText()).append(QString(". Not written.")));
             }
         }
     }
@@ -95,17 +90,16 @@ void Serial::on_pushButtonWeaveSelectedRows_clicked()
 
             ui->textBrowserStatus->append(QString("<span style=\"color:#008800;\">").append(s).append(QString("</span>")));
 
-            serial->setPortName(ui->comboBoxSerialPort->currentText());
-            if(this->serial->open(QIODevice::WriteOnly))
+            if (serial->isOpen())
             {
                 QByteArray dayArray;
                 dayArray.append(s);
-                this->serial->write(dayArray);
-                this->serial->waitForBytesWritten(-1);
-                this->serial->close();
+                dayArray.append("X");
+                serial->write(dayArray);
+                serial->waitForBytesWritten(-1);
                 ui->textBrowserStatus->append(QString("Written."));
             } else {
-                ui->textBrowserStatus->append(QString("Error opening serial port ").append(ui->comboBoxSerialPort->currentText()).append(QString(". Not written.")));
+                ui->textBrowserStatus->append(QString("Serial port is not open.").append(ui->comboBoxSerialPort->currentText()).append(QString(". Not written.")));
             }
         }
     }
@@ -146,7 +140,6 @@ void Serial::on_pushButtonLoad_clicked()
 
                 lineindex++;
             }
-
             file.close();
         }
     } else {
@@ -229,4 +222,19 @@ void Serial::on_pushButtonSaveAs_clicked()
             csvFile.close();
         }
     }
+}
+
+void Serial::on_comboBoxSerialPort_currentTextChanged(const QString &arg1)
+{
+    serial->close();
+    delete serialPortReader;
+    qDebug() << "Updated to " << ui->comboBoxSerialPort->currentText();
+    serial->setPortName(ui->comboBoxSerialPort->currentText());
+    serial->setBaudRate(QSerialPort::Baud9600);
+    serial->setParity(QSerialPort::NoParity);
+    serial->setStopBits(QSerialPort::OneStop);
+    serial->setFlowControl(QSerialPort::NoFlowControl);
+    serial->setDataBits(QSerialPort::Data8);
+    serialPortReader = new SerialPortReader(serial, ui->textBrowserStatus);
+    serial->open(QIODevice::ReadWrite);
 }

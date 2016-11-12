@@ -7,6 +7,7 @@
 #include <QTimer>
 #include <QByteArray>
 #include <QObject>
+#include <QTextBrowser>
 
 QT_USE_NAMESPACE
 
@@ -16,7 +17,7 @@ class SerialPortReader : public QObject
     Q_OBJECT
 
 public:
-    SerialPortReader(QSerialPort *serialPort, QObject *parent = 0);
+    SerialPortReader(QSerialPort *serialPort, QTextBrowser *_textBrowser, QObject *parent = 0);
     ~SerialPortReader();
 
 private slots:
@@ -29,6 +30,7 @@ private:
     QByteArray  m_readData;
     QTextStream m_standardOutput;
     QTimer      m_timer;
+    QTextBrowser *textBrowser;
 };
 
 #endif

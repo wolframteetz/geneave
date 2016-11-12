@@ -15,7 +15,6 @@ class Serial : public QWidget
 
 public:
     explicit Serial(QWidget *parent = 0);
-    //void initialize();
     ~Serial();
 
 private slots:
@@ -32,6 +31,8 @@ private slots:
     void on_toolButtonRemoveRowPattern_clicked();
 
     void on_pushButtonSaveAs_clicked();
+
+    void on_comboBoxSerialPort_currentTextChanged(const QString &arg1);
 
 private:
     Ui::Serial *ui;  
