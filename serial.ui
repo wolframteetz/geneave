@@ -338,6 +338,16 @@
           <string>3</string>
          </property>
         </row>
+        <row>
+         <property name="text">
+          <string>4</string>
+         </property>
+        </row>
+        <row>
+         <property name="text">
+          <string>5</string>
+         </property>
+        </row>
         <column>
          <property name="text">
           <string>1</string>
@@ -410,7 +420,7 @@
         </column>
         <item row="0" column="0">
          <property name="text">
-          <string>1</string>
+          <string>0</string>
          </property>
         </item>
         <item row="0" column="1">
@@ -480,7 +490,7 @@
         </item>
         <item row="1" column="0">
          <property name="text">
-          <string>0</string>
+          <string>1</string>
          </property>
         </item>
         <item row="1" column="1">
@@ -550,7 +560,7 @@
         </item>
         <item row="2" column="0">
          <property name="text">
-          <string>1</string>
+          <string>0</string>
          </property>
         </item>
         <item row="2" column="1">
@@ -560,7 +570,7 @@
         </item>
         <item row="2" column="2">
          <property name="text">
-          <string>0</string>
+          <string>1</string>
          </property>
         </item>
         <item row="2" column="3">
@@ -580,7 +590,7 @@
         </item>
         <item row="2" column="6">
          <property name="text">
-          <string>1</string>
+          <string>0</string>
          </property>
         </item>
         <item row="2" column="7">
@@ -610,10 +620,150 @@
         </item>
         <item row="2" column="12">
          <property name="text">
-          <string>1</string>
+          <string>0</string>
          </property>
         </item>
         <item row="2" column="13">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="0">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="1">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item row="3" column="2">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="3">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="4">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="5">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="6">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="7">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="8">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="9">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="10">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="11">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="12">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="13">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="0">
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item row="4" column="1">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="2">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="3">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="4">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="5">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="6">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="7">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="8">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="9">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="10">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="11">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="12">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="13">
          <property name="text">
           <string>0</string>
          </property>
@@ -655,6 +805,23 @@
       <string>Serial Port</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="1">
+       <widget class="QComboBox" name="comboBoxSerialPort">
+        <property name="editable">
+         <bool>true</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>COM3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>/dev/tty.usbmodemFA141</string>
+         </property>
+        </item>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QLabel" name="label_3">
         <property name="sizePolicy">
@@ -665,19 +832,6 @@
         </property>
         <property name="text">
          <string>Serial port</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLineEdit" name="lineEditSerialPort">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>/dev/tty.usbmodemFA141</string>
         </property>
        </widget>
       </item>

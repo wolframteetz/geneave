@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QtSerialPort/QSerialPort>
+#include "serialportreader.h"
 
 namespace Ui {
 class Serial;
@@ -35,6 +36,7 @@ private slots:
 private:
     Ui::Serial *ui;  
     QSerialPort *serial;
+    SerialPortReader *serialPortReader;
 };
 
 #endif // SERIAL_H
