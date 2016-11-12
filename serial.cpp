@@ -28,9 +28,9 @@ Serial::~Serial()
 void Serial::on_pushButtonExecute_clicked()
 {
     ui->pushButtonExecute->setEnabled(false);
-
+    ui->textBrowserStatus->setText("Weave all rows.");
     for (int i=0; i<ui->spinBoxTimesExecute->value(); i++) {
-        qDebug() << "Run " << i+1 << " of " << ui->spinBoxTimesExecute->value();
+        ui->textBrowserStatus->append(QString("Run ").append(QString::number(i+1)).append(" of ").append(QString::number(ui->spinBoxTimesExecute->value())));
         QString s;
         for (int y=0; y<ui->tableWidgetPattern->rowCount(); y++)
         {
@@ -42,7 +42,7 @@ void Serial::on_pushButtonExecute_clicked()
                 s.append(ui->tableWidgetAmounts->item(v,x)->text());
             }
 
-            qDebug() << s;
+            ui->textBrowserStatus->append(QString("<span style=\"color:#008800;\">").append(s).append(QString("</span>")));
 
             serial->setPortName(ui->lineEditSerialPort->text());
             if(this->serial->open(QIODevice::ReadWrite))
@@ -58,25 +58,25 @@ void Serial::on_pushButtonExecute_clicked()
                 this->serial->write(dayArray);
                 this->serial->waitForBytesWritten(-1);
                 this->serial->close();
-                qDebug()<< "Written.";
+                ui->textBrowserStatus->append(QString("Written."));
             } else {
-                qDebug()<< "Error opening serial port. Not written.";
+                ui->textBrowserStatus->append(QString("Error opening serial port. Not written."));
             }
-
         }
     }
-    qDebug() << "Done.";
+    ui->textBrowserStatus->append(QString("Command finished."));
     ui->pushButtonExecute->setEnabled(true);
 }
 
 void Serial::on_pushButtonWeaveSelectedRows_clicked()
 {
     ui->pushButtonWeaveSelectedRows->setEnabled(false);
+    ui->textBrowserStatus->setText("Weave selected rows.");
 
     QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
 
     for (int i=0; i<ui->spinBoxTimesExecute->value(); i++) {
-        qDebug() << "Run " << i+1 << " of " << ui->spinBoxTimesExecute->value();
+        ui->textBrowserStatus->append(QString("Run ").append(QString::number(i+1)).append(" of ").append(QString::number(ui->spinBoxTimesExecute->value())));
         QString s;
         // Multiple rows can be selected
         for(int i=0; i< selection.count(); i++)
@@ -90,7 +90,7 @@ void Serial::on_pushButtonWeaveSelectedRows_clicked()
                 s.append(ui->tableWidgetAmounts->item(v,x)->text());
             }
 
-            qDebug() << s;
+            ui->textBrowserStatus->append(QString("<span style=\"color:#008800;\">").append(s).append(QString("</span>")));
 
             serial->setPortName(ui->lineEditSerialPort->text());
             if(this->serial->open(QIODevice::ReadWrite))
@@ -106,13 +106,13 @@ void Serial::on_pushButtonWeaveSelectedRows_clicked()
                 this->serial->write(dayArray);
                 this->serial->waitForBytesWritten(-1);
                 this->serial->close();
-                qDebug()<< "Written.";
+                ui->textBrowserStatus->append(QString("Written."));
             } else {
-                qDebug()<< "Error opening serial port. Not written.";
+                ui->textBrowserStatus->append(QString("Error opening serial port. Not written."));
             }
         }
     }
-    qDebug() << "Done.";
+    ui->textBrowserStatus->append(QString("Command finished."));
     ui->pushButtonWeaveSelectedRows->setEnabled(true);
 }
 
@@ -160,8 +160,7 @@ void Serial::on_pushButtonLoad_clicked()
 
 void Serial::on_pushButtonSave_clicked()
 {
-    QString fileName = QFileDialog::getSaveFileName(this,
-        tr("Save CSV Pattern"), ui->labelName->text(), tr("CSV Files (*.csv)"));
+    QString fileName = ui->labelName->text();
 
     if (fileName.length()>0) {
         QString textData;
@@ -205,5 +204,32 @@ void Serial::on_toolButtonRemoveRowPattern_clicked()
         int y = selection.at(i).row();
         ui->tableWidgetPattern->removeRow(y-c);
         c++;
+    }
+}
+
+void Serial::on_pushButtonSaveAs_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save CSV Pattern"), ui->labelName->text(), tr("CSV Files (*.csv)"));
+
+    if (fileName.length()>0) {
+        QString textData;
+        int rows = ui->tableWidgetPattern->rowCount();
+        int columns = ui->tableWidgetPattern->columnCount();
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+
+                    textData += ui->tableWidgetPattern->item(i,j)->text();
+                    textData += ", ";      // for .csv file format
+            }
+            textData += "\n";             // (optional: for new line segmentation)
+        }
+        QFile csvFile(fileName);
+        if(csvFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+            QTextStream out(&csvFile);
+            out << textData;
+            csvFile.close();
+        }
     }
 }

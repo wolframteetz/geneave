@@ -30,6 +30,8 @@ private slots:
 
     void on_toolButtonRemoveRowPattern_clicked();
 
+    void on_pushButtonSaveAs_clicked();
+
 private:
     Ui::Serial *ui;  
     QSerialPort *serial;
