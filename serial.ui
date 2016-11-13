@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>929</width>
-    <height>810</height>
+    <height>811</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,7 +50,17 @@
       <string>Servo setup</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" colspan="3">
+      <item row="1" column="3">
+       <widget class="QToolButton" name="toolButtonRemoveRowServo">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>remove row</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="5">
        <widget class="QTableWidget" name="tableWidgetAmounts">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
@@ -141,6 +151,16 @@
           <string>14</string>
          </property>
         </column>
+        <column>
+         <property name="text">
+          <string>15</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>16</string>
+         </property>
+        </column>
         <item row="0" column="0">
          <property name="text">
           <string>00</string>
@@ -207,6 +227,16 @@
          </property>
         </item>
         <item row="0" column="13">
+         <property name="text">
+          <string>00</string>
+         </property>
+        </item>
+        <item row="0" column="14">
+         <property name="text">
+          <string>00</string>
+         </property>
+        </item>
+        <item row="0" column="15">
          <property name="text">
           <string>00</string>
          </property>
@@ -281,25 +311,57 @@
           <string>18</string>
          </property>
         </item>
+        <item row="1" column="14">
+         <property name="text">
+          <string>18</string>
+         </property>
+        </item>
+        <item row="1" column="15">
+         <property name="text">
+          <string>18</string>
+         </property>
+        </item>
        </widget>
       </item>
-      <item row="1" column="0">
+      <item row="1" column="2">
        <widget class="QToolButton" name="toolButtonAddRowServo">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="text">
          <string>add row</string>
         </property>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QSpinBox" name="spinBoxServos">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+        <property name="value">
+         <number>16</number>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="1">
-       <widget class="QToolButton" name="toolButtonRemoveRowServo">
-        <property name="enabled">
-         <bool>false</bool>
+       <widget class="QLabel" name="label_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>remove row</string>
+         <string>Servos</string>
         </property>
        </widget>
       </item>
@@ -418,6 +480,16 @@
           <string>14</string>
          </property>
         </column>
+        <column>
+         <property name="text">
+          <string>15</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>16</string>
+         </property>
+        </column>
         <item row="0" column="0">
          <property name="text">
           <string>0</string>
@@ -484,6 +556,16 @@
          </property>
         </item>
         <item row="0" column="13">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="0" column="14">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="0" column="15">
          <property name="text">
           <string>0</string>
          </property>
@@ -558,6 +640,16 @@
           <string>0</string>
          </property>
         </item>
+        <item row="1" column="14">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="1" column="15">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
         <item row="2" column="0">
          <property name="text">
           <string>0</string>
@@ -624,6 +716,16 @@
          </property>
         </item>
         <item row="2" column="13">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="2" column="14">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="2" column="15">
          <property name="text">
           <string>0</string>
          </property>
@@ -698,6 +800,16 @@
           <string>0</string>
          </property>
         </item>
+        <item row="3" column="14">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="3" column="15">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
         <item row="4" column="0">
          <property name="text">
           <string>1</string>
@@ -764,6 +876,16 @@
          </property>
         </item>
         <item row="4" column="13">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="14">
+         <property name="text">
+          <string>0</string>
+         </property>
+        </item>
+        <item row="4" column="15">
          <property name="text">
           <string>0</string>
          </property>

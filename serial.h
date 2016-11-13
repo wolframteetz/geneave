@@ -34,6 +34,14 @@ private slots:
 
     void on_comboBoxSerialPort_currentTextChanged(const QString &arg1);
 
+    void on_spinBoxServos_valueChanged(int arg1);
+
+    void on_spinBoxServos_editingFinished();
+
+    void on_toolButtonAddRowServo_clicked();
+
+    void on_toolButtonRemoveRowServo_clicked();
+
 private:
     Ui::Serial *ui;  
     QSerialPort *serial;

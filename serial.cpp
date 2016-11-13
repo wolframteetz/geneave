@@ -185,6 +185,16 @@ void Serial::on_toolButtonAddRowPattern_clicked()
     }
 }
 
+void Serial::on_toolButtonAddRowServo_clicked()
+{
+    QModelIndexList selection = ui->tableWidgetAmounts->selectionModel()->selectedRows();
+    if (selection.count()>0) {
+        ui->tableWidgetAmounts->insertRow(selection.at(selection.count()-1).row()+1);
+    } else {
+        ui->tableWidgetAmounts->insertRow(ui->tableWidgetAmounts->rowCount());
+    }
+}
+
 void Serial::on_toolButtonRemoveRowPattern_clicked()
 {
     QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
@@ -193,6 +203,18 @@ void Serial::on_toolButtonRemoveRowPattern_clicked()
     {
         int y = selection.at(i).row();
         ui->tableWidgetPattern->removeRow(y-c);
+        c++;
+    }
+}
+
+void Serial::on_toolButtonRemoveRowServo_clicked()
+{
+    QModelIndexList selection = ui->tableWidgetAmounts->selectionModel()->selectedRows();
+    int c=0;
+    for(int i=0; i< selection.count(); i++)
+    {
+        int y = selection.at(i).row();
+        ui->tableWidgetAmounts->removeRow(y-c);
         c++;
     }
 }
@@ -238,3 +260,23 @@ void Serial::on_comboBoxSerialPort_currentTextChanged(const QString &arg1)
     serialPortReader = new SerialPortReader(serial, ui->textBrowserStatus);
     serial->open(QIODevice::ReadWrite);
 }
+
+void Serial::on_spinBoxServos_valueChanged(int _newColumns)
+{
+    int existingColumns = ui->tableWidgetAmounts->columnCount();
+    for (int cx=0; cx<_newColumns-existingColumns; cx++) {
+        ui->tableWidgetAmounts->insertColumn(ui->tableWidgetAmounts->columnCount());
+        ui->tableWidgetPattern->insertColumn(ui->tableWidgetPattern->columnCount());
+    }
+    for (int cx=0; cx<existingColumns-_newColumns; cx++) {
+        ui->tableWidgetAmounts->removeColumn(ui->tableWidgetAmounts->columnCount()-1);
+        ui->tableWidgetPattern->removeColumn(ui->tableWidgetPattern->columnCount()-1);
+    }
+}
+
+void Serial::on_spinBoxServos_editingFinished()
+{
+    int _newColumns = ui->spinBoxServos->value();
+}
+
+
