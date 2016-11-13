@@ -42,10 +42,17 @@ private slots:
 
     void on_toolButtonRemoveRowServo_clicked();
 
+    void on_pushButtonWeaveAndForward_clicked();
+
+    void on_pushButtonWeaveAndBackward_clicked();
+
+    void on_pushButtonMoveToZero_clicked();
+
 private:
     Ui::Serial *ui;  
     QSerialPort *serial;
     SerialPortReader *serialPortReader;
+    void executeRows(bool zeroAll=false);
 };
 
 #endif // SERIAL_H

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>929</width>
-    <height>811</height>
+    <height>813</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -966,8 +966,8 @@
       <string>Servo Control</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_6">
-      <item row="0" column="3">
-       <widget class="QPushButton" name="pushButtonExecute">
+      <item row="0" column="4">
+       <widget class="QPushButton" name="pushButtonWeaveAndBackward">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -975,14 +975,20 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>Weave all rows</string>
+         <string>Weave and go back</string>
+        </property>
+        <property name="shortcut">
+         <string>Backspace</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="2">
-       <widget class="QPushButton" name="pushButtonWeaveSelectedRows">
+      <item row="0" column="3">
+       <widget class="QPushButton" name="pushButtonWeaveAndForward">
         <property name="text">
-         <string>Weave selected rows</string>
+         <string>Weave and go forward</string>
+        </property>
+        <property name="shortcut">
+         <string>Space</string>
         </property>
        </widget>
       </item>
@@ -1015,7 +1021,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="4">
+      <item row="1" column="0" colspan="5">
        <widget class="QTextBrowser" name="textBrowserStatus">
         <property name="html">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -1023,6 +1029,19 @@
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.SF NS Text'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#ff0000;&quot;&gt;Ready to weave.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <widget class="QPushButton" name="pushButtonMoveToZero">
+        <property name="text">
+         <string>Move to zero</string>
+        </property>
+        <property name="shortcut">
+         <string>0</string>
+        </property>
+        <property name="checkable">
+         <bool>false</bool>
         </property>
        </widget>
       </item>

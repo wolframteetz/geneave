@@ -32,7 +32,7 @@ Serial::~Serial()
 
 void Serial::on_pushButtonExecute_clicked()
 {
-    ui->pushButtonExecute->setEnabled(false);
+/*    ui->pushButtonExecute->setEnabled(false);
     ui->textBrowserStatus->setText("Weave all rows.");
     for (int i=0; i<ui->spinBoxTimesExecute->value(); i++) {
         ui->textBrowserStatus->append(QString("Run ").append(QString::number(i+1)).append(" of ").append(QString::number(ui->spinBoxTimesExecute->value())));
@@ -63,49 +63,11 @@ void Serial::on_pushButtonExecute_clicked()
         }
     }
     ui->textBrowserStatus->append(QString("Command finished."));
-    ui->pushButtonExecute->setEnabled(true);
+    ui->pushButtonExecute->setEnabled(true);*/
 }
 
 void Serial::on_pushButtonWeaveSelectedRows_clicked()
 {
-    ui->pushButtonWeaveSelectedRows->setEnabled(false);
-    ui->textBrowserStatus->setText("Weave selected rows.");
-
-    QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
-    if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
-
-    for (int i=0; i<ui->spinBoxTimesExecute->value(); i++) {
-        ui->textBrowserStatus->append(QString("Run ").append(QString::number(i+1)).append(" of ").append(QString::number(ui->spinBoxTimesExecute->value())));
-        QString s;
-        // Multiple rows can be selected
-        for(int i=0; i< selection.count(); i++)
-        {
-            int y = selection.at(i).row();
-            s.clear();
-            for (int x=0; x< ui->tableWidgetPattern->columnCount(); x++)
-            {
-
-                int v = ui->tableWidgetPattern->item(y,x)->text().toInt();
-                s.append(ui->tableWidgetAmounts->item(v,x)->text());
-            }
-
-            ui->textBrowserStatus->append(QString("<span style=\"color:#008800;\">").append(s).append(QString("</span>")));
-
-            if (serial->isOpen())
-            {
-                QByteArray dayArray;
-                dayArray.append(s);
-                dayArray.append("X");
-                serial->write(dayArray);
-                serial->waitForBytesWritten(-1);
-                ui->textBrowserStatus->append(QString("Written."));
-            } else {
-                ui->textBrowserStatus->append(QString("Serial port is not open.").append(ui->comboBoxSerialPort->currentText()).append(QString(". Not written.")));
-            }
-        }
-    }
-    ui->textBrowserStatus->append(QString("Command finished."));
-    ui->pushButtonWeaveSelectedRows->setEnabled(true);
 }
 
 void Serial::on_pushButtonLoad_clicked()
@@ -280,4 +242,82 @@ void Serial::on_spinBoxServos_editingFinished()
     int _newColumns = ui->spinBoxServos->value();
 }
 
+void Serial::executeRows(bool zeroAll)
+{
+    ui->pushButtonMoveToZero->setEnabled(false);
+    ui->pushButtonWeaveAndForward->setEnabled(false);
+    ui->pushButtonWeaveAndBackward->setEnabled(false);
 
+    QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
+    if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
+
+    for (int i=0; i<ui->spinBoxTimesExecute->value(); i++) {
+        ui->textBrowserStatus->append(QString("Run ").append(QString::number(i+1)).append(" of ").append(QString::number(ui->spinBoxTimesExecute->value())));
+        QString s;
+        // Multiple rows can be selected
+        for(int i=0; i< selection.count(); i++)
+        {
+            int y = selection.at(i).row();
+            s.clear();
+            for (int x=0; x< ui->tableWidgetPattern->columnCount(); x++)
+            {
+
+                int v = ui->tableWidgetPattern->item(y,x)->text().toInt();
+                if (!zeroAll) s.append(ui->tableWidgetAmounts->item(v,x)->text());
+                else s.append(ui->tableWidgetAmounts->item(0,0)->text());
+            }
+
+            ui->textBrowserStatus->append(QString("<span style=\"color:#008800;\">").append(s).append(QString("</span>")));
+
+            if (serial->isOpen())
+            {
+                QByteArray dayArray;
+                dayArray.append(s);
+                dayArray.append("X");
+                serial->write(dayArray);
+                serial->waitForBytesWritten(-1);
+                ui->textBrowserStatus->append(QString("Written."));
+            } else {
+                ui->textBrowserStatus->append(QString("Serial port is not open.").append(ui->comboBoxSerialPort->currentText()).append(QString(". Not written.")));
+            }
+        }
+    }
+    ui->textBrowserStatus->append(QString("Command finished."));
+    ui->pushButtonMoveToZero->setEnabled(true);
+    ui->pushButtonWeaveAndForward->setEnabled(true);
+    ui->pushButtonWeaveAndBackward->setEnabled(true);
+}
+
+void Serial::on_pushButtonWeaveAndForward_clicked()
+{
+    // make sure ANY row is selected
+    QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
+    if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
+    if (selection.isEmpty()) ui->tableWidgetPattern->selectRow(0);
+    // exectute
+    ui->textBrowserStatus->setText("Weave selected rows and forward.");
+    executeRows();
+    // forward
+    selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
+    if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
+    ui->tableWidgetPattern->selectRow(selection.at(selection.count()-1).row()+1);
+}
+
+void Serial::on_pushButtonWeaveAndBackward_clicked()
+{
+    // make sure ANY row is selected
+    QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
+    if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
+    if (selection.isEmpty()) ui->tableWidgetPattern->selectRow(0);
+    ui->textBrowserStatus->setText("Weave selected rows and backward.");
+    executeRows();
+    selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
+    if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
+    ui->tableWidgetPattern->selectRow(selection.at(selection.count()-1).row()-1);
+}
+
+void Serial::on_pushButtonMoveToZero_clicked()
+{
+    ui->textBrowserStatus->setText("Zero all.");
+    executeRows(true);
+}
