@@ -2,7 +2,7 @@
 
 String readString, servoString[16];
 Servo servo[16]; // Servo #0...15
-int servoPins[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
+int servoPins[] = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 44, 45, 46, 47};
  
 bool readComplete;
 
