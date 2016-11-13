@@ -72,6 +72,7 @@ void Serial::on_pushButtonWeaveSelectedRows_clicked()
     ui->textBrowserStatus->setText("Weave selected rows.");
 
     QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
+    if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
 
     for (int i=0; i<ui->spinBoxTimesExecute->value(); i++) {
         ui->textBrowserStatus->append(QString("Run ").append(QString::number(i+1)).append(" of ").append(QString::number(ui->spinBoxTimesExecute->value())));
