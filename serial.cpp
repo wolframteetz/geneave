@@ -22,6 +22,20 @@ Serial::Serial(QWidget *parent) :
     serialPortReader = new SerialPortReader(serial, ui->textBrowserStatus);
     serial->open(QIODevice::ReadWrite);
 
+    iconImageColumns = new QImage(16, 8, QImage::Format_ARGB32);
+    ui->iconEditorColumns->setIconImage(*iconImageColumns);
+    ui->iconEditorColumns->forceOnePixelPerRowColumn(false, true);
+    iconImageRows = new QImage(8, 16, QImage::Format_ARGB32);
+    ui->iconEditorRows->setIconImage(*iconImageRows);
+    ui->iconEditorRows->forceOnePixelPerRowColumn(true, false);
+    ui->iconEditorRows->setEnabled(false);
+    iconImagePattern = new QImage(8, 8, QImage::Format_ARGB32);
+    ui->iconEditorPattern->setIconImage(*iconImagePattern);
+    ui->iconEditorPattern->forceOnePixelPerRowColumn(false, false);
+    iconImageFullPattern = new QImage(16*2, 16*2, QImage::Format_ARGB32);
+    ui->iconEditorFullPattern->setIconImage(*iconImageFullPattern);
+    on_iconEditorPattern_imageChanged();
+
 }
 
 Serial::~Serial()
@@ -300,7 +314,7 @@ void Serial::on_pushButtonWeaveAndForward_clicked()
     // forward
     selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
     if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
-    ui->tableWidgetPattern->selectRow(selection.at(selection.count()-1).row()+1);
+    ui->tableWidgetPattern->selectRow(  (selection.at(selection.count()-1).row()+1)  %  ui->tableWidgetPattern->rowCount() );
 }
 
 void Serial::on_pushButtonWeaveAndBackward_clicked()
@@ -313,11 +327,66 @@ void Serial::on_pushButtonWeaveAndBackward_clicked()
     executeRows();
     selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
     if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
-    ui->tableWidgetPattern->selectRow(selection.at(selection.count()-1).row()-1);
+    ui->tableWidgetPattern->selectRow(  (selection.at(selection.count()-1).row()+ui->tableWidgetPattern->rowCount()-1)  %  ui->tableWidgetPattern->rowCount());
 }
 
 void Serial::on_pushButtonMoveToZero_clicked()
 {
     ui->textBrowserStatus->setText("Zero all.");
     executeRows(true);
+}
+
+void Serial::on_iconEditorColumns_imageChanged()
+{
+    // ui->iconEditor has changed in Columns, FullPattern will be updated from Pattern and Columns // TODO::Then Rows will be updated.
+    for (int i = 0; i <  ui->iconEditorFullPattern->image.width(); ++i) {
+        int c=0;
+        for (int j = 0; j < ui->iconEditorColumns->image.height(); ++j) {
+            QColor color = QColor::fromRgba(ui->iconEditorColumns->image.pixel(i%ui->iconEditorColumns->image.width(), j));
+            if (color.red() < 255) {
+                c=j; break; // found active pattern
+            }
+        }
+        for (int j = 0; j < ui->iconEditorFullPattern->image.height(); ++j) {
+            QColor color = QColor::fromRgba(ui->iconEditorPattern->image.pixel(j%ui->iconEditorPattern->image.width(), c));
+            ui->iconEditorFullPattern->image.setPixelColor(i, j, color);
+
+        }
+    }
+    ui->iconEditorFullPattern->update();
+}
+
+void Serial::on_iconEditorPattern_imageChanged()
+{
+    // ui->iconEditor has changed in Columns, FullPattern will be updated from Pattern and Columns // TODO::Then Rows will be updated.
+    for (int i = 0; i <  ui->iconEditorFullPattern->image.width(); ++i) {
+        int c=0;
+        for (int j = 0; j < ui->iconEditorColumns->image.height(); ++j) {
+            QColor color = QColor::fromRgba(ui->iconEditorColumns->image.pixel(i%ui->iconEditorColumns->image.width(), j));
+            if (color.red() < 255) {
+                c=j; break; // found active pattern
+            }
+        }
+        for (int j = 0; j < ui->iconEditorFullPattern->image.height(); ++j) {
+            QColor color = QColor::fromRgba(ui->iconEditorPattern->image.pixel(j%ui->iconEditorPattern->image.width(), c));
+            ui->iconEditorFullPattern->image.setPixelColor(i, j, color);
+
+        }
+    }
+    ui->iconEditorFullPattern->update();
+}
+
+void Serial::on_pushButton_clicked()
+{
+    ui->tableWidgetPattern->setRowCount(ui->iconEditorRows->image.size().height());
+    ui->tableWidgetPattern->setColumnCount(ui->iconEditorColumns->image.size().width());
+    for (int i=0; i< ui->tableWidgetPattern->columnCount(); i++) {
+        for (int j=0; j< ui->tableWidgetPattern->rowCount(); j++) {
+            QTableWidgetItem *setdes = new QTableWidgetItem; // M E M O R Y   L E A K
+            QColor color = QColor::fromRgba(ui->iconEditorFullPattern->image.pixel(i,j));
+            if (color.red()<255) setdes->setText("1"); else setdes->setText("0"); // UPDATE THIS
+            //qDebug() << i << j << color.red() << color.green() << color.blue() << color.alpha();
+            ui->tableWidgetPattern->setItem(i, j, setdes);
+        }
+    }
 }

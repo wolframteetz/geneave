@@ -11,7 +11,6 @@
 
 QT_USE_NAMESPACE
 
-
 class SerialPortReader : public QObject
 {
     Q_OBJECT

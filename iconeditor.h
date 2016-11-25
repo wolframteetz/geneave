@@ -12,9 +12,11 @@ class IconEditor : public QWidget
     Q_PROPERTY(QImage iconImage READ iconImage WRITE setIconImage)
     Q_PROPERTY(int zoomFactor READ zoomFactor WRITE setZoomFactor)
 
+signals:
+    void imageChanged();
+
 public:
     IconEditor(QWidget *parent = 0);
-
     void setPenColor(const QColor &newColor);
     QColor penColor() const { return curColor; }
     void setZoomFactor(int newZoom);
@@ -22,6 +24,8 @@ public:
     void setIconImage(const QImage &newImage);
     QImage iconImage() const { return image; }
     QSize sizeHint() const;
+    void forceOnePixelPerRowColumn(bool _onePixelPerRow, bool _onePixelPerColumn);
+    QImage image;
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -33,8 +37,10 @@ private:
     QRect pixelRect(int i, int j) const;
 
     QColor curColor;
-    QImage image;
     int zoom;
+
+    bool onePixelPerRow;
+    bool onePixelPerColumn;
 };
 
 #endif

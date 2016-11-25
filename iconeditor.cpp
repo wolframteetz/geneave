@@ -12,7 +12,7 @@ IconEditor::IconEditor(QWidget *parent)
     zoom = 16;
 
     image = QImage(16, 16, QImage::Format_ARGB32);
-    image.fill(qRgba(0, 0, 0, 0));
+    image.fill(qRgba(255, 255, 255, 255));
 }
 
 void IconEditor::setPenColor(const QColor &newColor)
@@ -54,7 +54,7 @@ void IconEditor::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton) {
         setImagePixel(event->pos(), true);
     } else if (event->button() == Qt::RightButton) {
-        setImagePixel(event->pos(), false);
+        if ((!onePixelPerColumn)&&(!onePixelPerRow)) setImagePixel(event->pos(), false);
     }
 }
 
@@ -63,7 +63,7 @@ void IconEditor::mouseMoveEvent(QMouseEvent *event)
     if (event->buttons() & Qt::LeftButton) {
         setImagePixel(event->pos(), true);
     } else if (event->buttons() & Qt::RightButton) {
-        setImagePixel(event->pos(), false);
+        if ((!onePixelPerColumn)&&(!onePixelPerRow)) setImagePixel(event->pos(), false);
     }
 }
 
@@ -107,14 +107,28 @@ void IconEditor::setImagePixel(const QPoint &pos, bool opaque)
     int j = pos.y() / zoom;
 
     if (image.rect().contains(i, j)) {
+
         if (opaque) {
             image.setPixel(i, j, penColor().rgba());
-        } else {
-            image.setPixel(i, j, qRgba(0, 0, 0, 0));
-        }
+            if (onePixelPerColumn) {
+                for (int x = 0; x < image.height(); x++) {
+                    if (x!= j) image.setPixel(i, x, qRgba(255, 255, 255, 255));
+                }
+            }
+            if (onePixelPerRow) {
+                for (int x = 0; x < image.width(); x++) {
+                    if (x!= i) image.setPixel(x, j, qRgba(255, 255, 255, 255));
+                }
+            }
 
-        update(pixelRect(i, j));
+        } else {
+            image.setPixel(i, j, qRgba(255, 255, 255, 255));
+        }
+        if (onePixelPerColumn || onePixelPerRow) update();
+        else update(pixelRect(i, j));
     }
+    emit imageChanged();
+
 }
 
 QRect IconEditor::pixelRect(int i, int j) const
@@ -123,6 +137,44 @@ QRect IconEditor::pixelRect(int i, int j) const
         return QRect(zoom * i + 1, zoom * j + 1, zoom - 1, zoom - 1);
     } else {
         return QRect(zoom * i, zoom * j, zoom, zoom);
+    }
+}
+
+void IconEditor::forceOnePixelPerRowColumn(bool _onePixelPerRow, bool _onePixelPerColumn)
+{
+    onePixelPerColumn = _onePixelPerColumn;
+    onePixelPerRow = _onePixelPerRow;
+    if (onePixelPerColumn) {
+        for (int i = 0; i < image.width(); ++i) {
+            for (int j = 0; j < image.height(); ++j) {
+                    if ((i%image.height())==(j%image.height()))
+                        image.setPixel(i, j, qRgba(127, 127, 127, 255));
+                    else
+                        image.setPixel(i, j, qRgba(255, 255, 255, 255));
+            }
+        }
+    }
+
+    if (onePixelPerRow) {
+        for (int i = 0; i < image.width(); ++i) {
+            for (int j = 0; j < image.height(); ++j) {
+                    if ((i%image.width())==(j%image.width()))
+                        image.setPixel(i, j, qRgba(127, 127, 127, 255));
+                    else
+                        image.setPixel(i, j, qRgba(255, 255, 255, 255));
+            }
+        }
+    }
+
+    if ( (!onePixelPerColumn)&&(!_onePixelPerRow) ) {
+        for (int i = 0; i < image.width(); ++i) {
+            for (int j = 0; j < image.height(); ++j) {
+                    if ( (i+j)%2 == 0)
+                        image.setPixel(i, j, qRgba(127, 127, 127, 255));
+                    else
+                        image.setPixel(i, j, qRgba(255, 255, 255, 255));
+            }
+        }
     }
 }
 
