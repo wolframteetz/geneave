@@ -34,6 +34,7 @@ private slots:
     void on_pushButtonWeaveAndBackward_clicked();
     void on_pushButtonMoveToZero_clicked();
 
+    int  help_getWeaveX(int lifty);
     void updateFullPattern();
     void on_iconEditorColumns_imageChanged();
     void on_iconEditorPattern_imageChanged();

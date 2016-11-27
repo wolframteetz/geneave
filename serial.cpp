@@ -214,7 +214,7 @@ void Serial::on_comboBoxSerialPort_currentTextChanged(const QString &arg1)
 {
     serial->close();
     delete serialPortReader;
-    qDebug() << "Updated to " << ui->comboBoxSerialPort->currentText();
+    qDebug() << "Updated to " << arg1;
     serial->setPortName(ui->comboBoxSerialPort->currentText());
     serial->setBaudRate(QSerialPort::Baud9600);
     serial->setParity(QSerialPort::NoParity);
@@ -240,7 +240,6 @@ void Serial::on_spinBoxServos_valueChanged(int _newColumns)
 
 void Serial::on_spinBoxServos_editingFinished()
 {
-    int _newColumns = ui->spinBoxServos->value();
 }
 
 void Serial::executeRows(bool zeroAll)
@@ -295,13 +294,13 @@ void Serial::on_pushButtonWeaveAndForward_clicked()
     QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
     if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
     if (selection.isEmpty()) ui->tableWidgetPattern->selectRow(0);
-    // exectute
-    ui->textBrowserStatus->setText("Weave selected rows and forward.");
-    executeRows();
     // forward
     selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
     if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
     ui->tableWidgetPattern->selectRow(  (selection.at(selection.count()-1).row()+1)  %  ui->tableWidgetPattern->rowCount() );
+    // execute
+    ui->textBrowserStatus->setText("Weave selected rows and forward.");
+    executeRows();
 }
 
 void Serial::on_pushButtonWeaveAndBackward_clicked()
@@ -310,11 +309,13 @@ void Serial::on_pushButtonWeaveAndBackward_clicked()
     QModelIndexList selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
     if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
     if (selection.isEmpty()) ui->tableWidgetPattern->selectRow(0);
-    ui->textBrowserStatus->setText("Weave selected rows and backward.");
-    executeRows();
+    // backward
     selection = ui->tableWidgetPattern->selectionModel()->selectedRows();
     if (selection.isEmpty()) selection = ui->tableWidgetPattern->selectionModel()->selectedIndexes();
     ui->tableWidgetPattern->selectRow(  (selection.at(selection.count()-1).row()+ui->tableWidgetPattern->rowCount()-1)  %  ui->tableWidgetPattern->rowCount());
+    // execute
+    ui->textBrowserStatus->setText("Weave selected rows and backward.");
+    executeRows();
 }
 
 void Serial::on_pushButtonMoveToZero_clicked()
@@ -323,16 +324,22 @@ void Serial::on_pushButtonMoveToZero_clicked()
     executeRows(true);
 }
 
+int Serial::help_getWeaveX(int lifty)
+{
+    int weavex=0;
+    for (int liftx = 0; liftx <  ui->iconEditorRows->image.width(); ++liftx) {
+        QColor color = QColor::fromRgba(ui->iconEditorRows->image.pixel(liftx, lifty)); // check xy
+        if (color.red() < 255) {
+            weavex=liftx; break; // found active weave column
+        }
+    }
+    return weavex;
+}
+
 void Serial::updateFullPattern()
 {
     for (int lifty = 0; lifty <  ui->iconEditorRows->image.height(); ++lifty) {
-        int weavex=0;
-        for (int liftx = 0; liftx <  ui->iconEditorRows->image.width(); ++liftx) {
-            QColor color = QColor::fromRgba(ui->iconEditorRows->image.pixel(liftx, lifty)); // check xy
-            if (color.red() < 255) {
-                weavex=liftx; break; // found active weave column
-            }
-        }
+        int weavex=help_getWeaveX(lifty);
         // reset all
         for (int tiex = 0; tiex <  ui->iconEditorColumns->image.width(); ++tiex) {
             ui->iconEditorFullPattern->image.setPixel(tiex, lifty, qRgba(255, 255, 255, 255));
@@ -377,30 +384,45 @@ void Serial::iconEditorBaseParametersChanged()
 
     iconImageColumns = new QImage(warpthreads, shafts, QImage::Format_ARGB32);
     ui->iconEditorColumns->setIconImage(*iconImageColumns);
+    ui->iconEditorColumns->setMinimumSize(ui->iconEditorColumns->sizeHint());
     ui->iconEditorColumns->forceOnePixelPerRowColumn(false, true);
     iconImageRows = new QImage(threadles, picks, QImage::Format_ARGB32);
     ui->iconEditorRows->setIconImage(*iconImageRows);
+    ui->iconEditorRows->setMinimumSize(ui->iconEditorRows->sizeHint());
     ui->iconEditorRows->forceOnePixelPerRowColumn(true, false);
     //ui->iconEditorRows->setEnabled(false);
     iconImagePattern = new QImage(threadles, shafts, QImage::Format_ARGB32);
     ui->iconEditorPattern->setIconImage(*iconImagePattern);
+    ui->iconEditorPattern->setMinimumSize(ui->iconEditorPattern->sizeHint());
     ui->iconEditorPattern->forceOnePixelPerRowColumn(false, false);
     iconImageFullPattern = new QImage(warpthreads, picks, QImage::Format_ARGB32);
     ui->iconEditorFullPattern->setIconImage(*iconImageFullPattern);
-    on_iconEditorPattern_imageChanged();
+    ui->iconEditorFullPattern->setMinimumSize(ui->iconEditorFullPattern->sizeHint());
+    updateFullPattern();
+
+
 }
 
 void Serial::on_pushButton_clicked()
 {
-    ui->tableWidgetPattern->setRowCount(ui->iconEditorRows->image.size().height());
-    ui->tableWidgetPattern->setColumnCount(ui->iconEditorColumns->image.size().width());
-    for (int i=0; i< ui->tableWidgetPattern->columnCount(); i++) {
-        for (int j=0; j< ui->tableWidgetPattern->rowCount(); j++) {
-            QTableWidgetItem *setdes = new QTableWidgetItem; // M E M O R Y   L E A K
-            QColor color = QColor::fromRgba(ui->iconEditorFullPattern->image.pixel(i,j));
-            if (color.red()<255) setdes->setText("1"); else setdes->setText("0"); // UPDATE THIS
-            //qDebug() << i << j << color.red() << color.green() << color.blue() << color.alpha();
-            ui->tableWidgetPattern->setItem(i, j, setdes);
+
+    //ui->tableWidgetPattern->setColumnCount(ui->iconEditorPattern->image.size().height()); // columns stay # of servos connected
+    ui->tableWidgetPattern->setRowCount(ui->iconEditorRows->image.size().height()); // weave size
+
+    for (int y=0; y<ui->iconEditorRows->image.size().height(); y++) {
+        int weavex=help_getWeaveX(y);
+        for (int x=0; x<ui->tableWidgetPattern->columnCount(); x++) { // all servos need commands
+            if (x>=ui->iconEditorPattern->image.size().height()) { // unused servo
+                QTableWidgetItem *setdes = new QTableWidgetItem; // M E M O R Y   L E A K
+                setdes->setText("0");
+                ui->tableWidgetPattern->setItem(y, x, setdes);
+            } else {
+                QColor color = QColor::fromRgba(ui->iconEditorPattern->image.pixel(weavex,x));
+                qDebug() << weavex << "," << x << color.red();
+                QTableWidgetItem *setdes = new QTableWidgetItem; // M E M O R Y   L E A K
+                if (color.red()<255) setdes->setText("1"); else setdes->setText("0"); // UPDATE THIS
+                ui->tableWidgetPattern->setItem(y, x, setdes);
+            }
         }
     }
 }
