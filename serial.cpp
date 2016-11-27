@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QStandardItem>
 #include <QStandardItemModel>
+#include <QSettings>
 
 Serial::Serial(QWidget *parent) :
     QWidget(parent),
@@ -33,38 +34,6 @@ Serial::~Serial()
 
 void Serial::on_pushButtonExecute_clicked()
 {
-/*    ui->pushButtonExecute->setEnabled(false);
-    ui->textBrowserStatus->setText("Weave all rows.");
-    for (int i=0; i<ui->spinBoxTimesExecute->value(); i++) {
-        ui->textBrowserStatus->append(QString("Run ").append(QString::number(i+1)).append(" of ").append(QString::number(ui->spinBoxTimesExecute->value())));
-        QString s;
-        for (int y=0; y<ui->tableWidgetPattern->rowCount(); y++)
-        {
-            s.clear();
-            for (int x=0; x< ui->tableWidgetPattern->columnCount(); x++)
-            {
-
-                int v = ui->tableWidgetPattern->item(y,x)->text().toInt();
-                s.append(ui->tableWidgetAmounts->item(v,x)->text());
-            }
-
-            ui->textBrowserStatus->append(QString("<span style=\"color:#008800;\">").append(s).append(QString("</span>")));
-
-            if (serial->isOpen())
-            {
-                QByteArray dayArray;
-                dayArray.append(s);
-                dayArray.append("X");
-                serial->write(dayArray);
-                serial->waitForBytesWritten(-1);
-                ui->textBrowserStatus->append(QString("Written."));
-            } else {
-                ui->textBrowserStatus->append(QString("Serial port is not open.").append(ui->comboBoxSerialPort->currentText()).append(QString(". Not written.")));
-            }
-        }
-    }
-    ui->textBrowserStatus->append(QString("Command finished."));
-    ui->pushButtonExecute->setEnabled(true);*/
 }
 
 void Serial::on_pushButtonWeaveSelectedRows_clicked()
@@ -109,7 +78,6 @@ void Serial::on_pushButtonLoad_clicked()
     } else {
         qDebug() << "No filename specified.";
     }
-
 }
 
 void Serial::on_pushButtonSave_clicked()
@@ -399,8 +367,6 @@ void Serial::iconEditorBaseParametersChanged()
     ui->iconEditorFullPattern->setIconImage(*iconImageFullPattern);
     ui->iconEditorFullPattern->setMinimumSize(ui->iconEditorFullPattern->sizeHint());
     updateFullPattern();
-
-
 }
 
 void Serial::on_pushButton_clicked()
@@ -418,7 +384,7 @@ void Serial::on_pushButton_clicked()
                 ui->tableWidgetPattern->setItem(y, x, setdes);
             } else {
                 QColor color = QColor::fromRgba(ui->iconEditorPattern->image.pixel(weavex,x));
-                qDebug() << weavex << "," << x << color.red();
+                //qDebug() << weavex << "," << x << color.red();
                 QTableWidgetItem *setdes = new QTableWidgetItem; // M E M O R Y   L E A K
                 if (color.red()<255) setdes->setText("1"); else setdes->setText("0"); // UPDATE THIS
                 ui->tableWidgetPattern->setItem(y, x, setdes);
@@ -449,4 +415,76 @@ void Serial::on_spinBoxPicks_valueChanged(int arg1)
 {
     picks = arg1;
     iconEditorBaseParametersChanged();
+}
+
+void Serial::on_pushButtonLoadWeave_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(this,
+        tr("Open WIF Weave"), "", tr("WIF Files (*.wif)"));
+
+    if (fileName.length()>0) {
+        ui->labelName->setText(fileName);
+        QSettings settings(fileName, QSettings::IniFormat);
+        // Fill parameters
+        ui->spinBoxShafts->setValue( settings.value("WEAVING/Shafts", shafts).toInt() );
+        ui->spinBoxThreadles->setValue( settings.value("WEAVING/Treadles", threadles).toInt() );
+        ui->spinBoxWarpthreads->setValue( settings.value("WARP/Threads", warpthreads).toInt() );
+        ui->spinBoxPicks->setValue( settings.value("WEFT/Threads", picks).toInt() );
+        // Fill weave
+
+        int x,y;
+        QStringList childKeys;
+
+        settings.beginGroup("TIEUP");
+        // clear
+        for (x=0; x<ui->iconEditorPattern->image.size().width(); x++) {
+            for (y=0; y<ui->iconEditorPattern->image.size().height(); y++) {
+                ui->iconEditorPattern->image.setPixel(x, y, qRgba(255, 255, 255, 255));
+            }
+        }
+        childKeys= settings.childKeys();
+        foreach (const QString &childKey, childKeys) {
+            x = childKey.toInt();
+            QStringList values = settings.value(childKey).toStringList();
+            foreach (const QString &value, values) {
+                y = value.toInt();
+                ui->iconEditorPattern->image.setPixel(x-1, y-1, qRgba(127, 127, 127, 255));
+            }
+        }
+        settings.endGroup();
+
+        settings.beginGroup("THREADING");
+        // clear
+        for (x=0; x<ui->iconEditorColumns->image.size().width(); x++) {
+            for (y=0; y<ui->iconEditorColumns->image.size().height(); y++) {
+                ui->iconEditorColumns->image.setPixel(x, y, qRgba(255, 255, 255, 255));
+            }
+        }
+        childKeys= settings.childKeys();
+        foreach (const QString &childKey, childKeys) {
+            x = childKey.toInt();
+            y = settings.value(childKey).toInt();
+            ui->iconEditorColumns->image.setPixel(x-1, y-1, qRgba(127, 127, 127, 255));
+        }
+        settings.endGroup();
+
+        settings.beginGroup("TREADLING");
+        // clear
+        for (x=0; x<ui->iconEditorRows->image.size().width(); x++) {
+            for (y=0; y<ui->iconEditorRows->image.size().height(); y++) {
+                ui->iconEditorRows->image.setPixel(x, y, qRgba(255, 255, 255, 255));
+            }
+        }
+        childKeys= settings.childKeys();
+        foreach (const QString &childKey, childKeys) {
+            y = childKey.toInt();
+            x = settings.value(childKey).toInt();
+            ui->iconEditorRows->image.setPixel(x-1, y-1, qRgba(127, 127, 127, 255));
+        }
+        settings.endGroup();
+
+        updateFullPattern();
+    } else {
+        qDebug() << "No filename specified.";
+    }
 }

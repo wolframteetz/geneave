@@ -47,6 +47,8 @@ private slots:
     void on_spinBoxWarpthreads_valueChanged(int arg1);
     void on_spinBoxPicks_valueChanged(int arg1);
 
+    void on_pushButtonLoadWeave_clicked();
+
 private:
     Ui::Serial *ui;  
     QSerialPort *serial;
