@@ -22,20 +22,7 @@ Serial::Serial(QWidget *parent) :
     serialPortReader = new SerialPortReader(serial, ui->textBrowserStatus);
     serial->open(QIODevice::ReadWrite);
 
-    iconImageColumns = new QImage(16, 8, QImage::Format_ARGB32);
-    ui->iconEditorColumns->setIconImage(*iconImageColumns);
-    ui->iconEditorColumns->forceOnePixelPerRowColumn(false, true);
-    iconImageRows = new QImage(8, 16, QImage::Format_ARGB32);
-    ui->iconEditorRows->setIconImage(*iconImageRows);
-    ui->iconEditorRows->forceOnePixelPerRowColumn(true, false);
-    ui->iconEditorRows->setEnabled(false);
-    iconImagePattern = new QImage(8, 8, QImage::Format_ARGB32);
-    ui->iconEditorPattern->setIconImage(*iconImagePattern);
-    ui->iconEditorPattern->forceOnePixelPerRowColumn(false, false);
-    iconImageFullPattern = new QImage(16*2, 16*2, QImage::Format_ARGB32);
-    ui->iconEditorFullPattern->setIconImage(*iconImageFullPattern);
-    on_iconEditorPattern_imageChanged();
-
+    iconEditorBaseParametersChanged();
 }
 
 Serial::~Serial()
@@ -336,44 +323,71 @@ void Serial::on_pushButtonMoveToZero_clicked()
     executeRows(true);
 }
 
-void Serial::on_iconEditorColumns_imageChanged()
+void Serial::updateFullPattern()
 {
-    // ui->iconEditor has changed in Columns, FullPattern will be updated from Pattern and Columns // TODO::Then Rows will be updated.
-    for (int i = 0; i <  ui->iconEditorFullPattern->image.width(); ++i) {
-        int c=0;
-        for (int j = 0; j < ui->iconEditorColumns->image.height(); ++j) {
-            QColor color = QColor::fromRgba(ui->iconEditorColumns->image.pixel(i%ui->iconEditorColumns->image.width(), j));
+    for (int lifty = 0; lifty <  ui->iconEditorRows->image.height(); ++lifty) {
+        int weavex=0;
+        for (int liftx = 0; liftx <  ui->iconEditorRows->image.width(); ++liftx) {
+            QColor color = QColor::fromRgba(ui->iconEditorRows->image.pixel(liftx, lifty)); // check xy
             if (color.red() < 255) {
-                c=j; break; // found active pattern
+                weavex=liftx; break; // found active weave column
             }
         }
-        for (int j = 0; j < ui->iconEditorFullPattern->image.height(); ++j) {
-            QColor color = QColor::fromRgba(ui->iconEditorPattern->image.pixel(j%ui->iconEditorPattern->image.width(), c));
-            ui->iconEditorFullPattern->image.setPixelColor(i, j, color);
-
+        // reset all
+        for (int tiex = 0; tiex <  ui->iconEditorColumns->image.width(); ++tiex) {
+            ui->iconEditorFullPattern->image.setPixel(tiex, lifty, qRgba(255, 255, 255, 255));
+        }
+        // set
+        for (int weavey = 0; weavey <  ui->iconEditorPattern->image.height(); ++weavey) {
+            QColor color = QColor::fromRgba(ui->iconEditorPattern->image.pixel(weavex, weavey));
+            if (color.red() < 255) { // active shaft
+                for (int tiex = 0; tiex <  ui->iconEditorColumns->image.width(); ++tiex) {
+                    QColor colorTie = QColor::fromRgba(ui->iconEditorColumns->image.pixel(tiex, weavey)); // check xy
+                    if (colorTie.red() < 255) {
+                        ui->iconEditorFullPattern->image.setPixelColor(tiex, lifty, colorTie); // shaft raised, set color of tie up
+                    }
+                }
+            }
         }
     }
     ui->iconEditorFullPattern->update();
 }
 
+void Serial::on_iconEditorColumns_imageChanged()
+{
+    updateFullPattern();
+}
+
 void Serial::on_iconEditorPattern_imageChanged()
 {
-    // ui->iconEditor has changed in Columns, FullPattern will be updated from Pattern and Columns // TODO::Then Rows will be updated.
-    for (int i = 0; i <  ui->iconEditorFullPattern->image.width(); ++i) {
-        int c=0;
-        for (int j = 0; j < ui->iconEditorColumns->image.height(); ++j) {
-            QColor color = QColor::fromRgba(ui->iconEditorColumns->image.pixel(i%ui->iconEditorColumns->image.width(), j));
-            if (color.red() < 255) {
-                c=j; break; // found active pattern
-            }
-        }
-        for (int j = 0; j < ui->iconEditorFullPattern->image.height(); ++j) {
-            QColor color = QColor::fromRgba(ui->iconEditorPattern->image.pixel(j%ui->iconEditorPattern->image.width(), c));
-            ui->iconEditorFullPattern->image.setPixelColor(i, j, color);
+    updateFullPattern();
+}
 
-        }
-    }
-    ui->iconEditorFullPattern->update();
+void Serial::on_iconEditorRows_imageChanged()
+{
+    updateFullPattern();
+}
+
+void Serial::iconEditorBaseParametersChanged()
+{
+    shafts = ui->spinBoxShafts->value();
+    threadles = ui->spinBoxThreadles->value();
+    warpthreads = ui->spinBoxWarpthreads->value();
+    picks = ui->spinBoxPicks->value();
+
+    iconImageColumns = new QImage(warpthreads, shafts, QImage::Format_ARGB32);
+    ui->iconEditorColumns->setIconImage(*iconImageColumns);
+    ui->iconEditorColumns->forceOnePixelPerRowColumn(false, true);
+    iconImageRows = new QImage(threadles, picks, QImage::Format_ARGB32);
+    ui->iconEditorRows->setIconImage(*iconImageRows);
+    ui->iconEditorRows->forceOnePixelPerRowColumn(true, false);
+    //ui->iconEditorRows->setEnabled(false);
+    iconImagePattern = new QImage(threadles, shafts, QImage::Format_ARGB32);
+    ui->iconEditorPattern->setIconImage(*iconImagePattern);
+    ui->iconEditorPattern->forceOnePixelPerRowColumn(false, false);
+    iconImageFullPattern = new QImage(warpthreads, picks, QImage::Format_ARGB32);
+    ui->iconEditorFullPattern->setIconImage(*iconImageFullPattern);
+    on_iconEditorPattern_imageChanged();
 }
 
 void Serial::on_pushButton_clicked()
@@ -389,4 +403,28 @@ void Serial::on_pushButton_clicked()
             ui->tableWidgetPattern->setItem(i, j, setdes);
         }
     }
+}
+
+void Serial::on_spinBoxThreadles_valueChanged(int arg1)
+{
+    threadles = arg1;
+    iconEditorBaseParametersChanged();
+}
+
+void Serial::on_spinBoxShafts_valueChanged(int arg1)
+{
+    shafts = arg1;
+    iconEditorBaseParametersChanged();
+}
+
+void Serial::on_spinBoxWarpthreads_valueChanged(int arg1)
+{
+    warpthreads = arg1;
+    iconEditorBaseParametersChanged();
+}
+
+void Serial::on_spinBoxPicks_valueChanged(int arg1)
+{
+    picks = arg1;
+    iconEditorBaseParametersChanged();
 }

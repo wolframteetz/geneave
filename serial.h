@@ -34,11 +34,17 @@ private slots:
     void on_pushButtonWeaveAndBackward_clicked();
     void on_pushButtonMoveToZero_clicked();
 
+    void updateFullPattern();
     void on_iconEditorColumns_imageChanged();
-
     void on_iconEditorPattern_imageChanged();
-
+    void on_iconEditorRows_imageChanged();
     void on_pushButton_clicked();
+
+    void iconEditorBaseParametersChanged();
+    void on_spinBoxThreadles_valueChanged(int arg1);
+    void on_spinBoxShafts_valueChanged(int arg1);
+    void on_spinBoxWarpthreads_valueChanged(int arg1);
+    void on_spinBoxPicks_valueChanged(int arg1);
 
 private:
     Ui::Serial *ui;  
@@ -49,6 +55,10 @@ private:
     QImage *iconImageRows;
     QImage *iconImagePattern;
     QImage *iconImageFullPattern;
+    int threadles;
+    int shafts;
+    int warpthreads;
+    int picks;
 
 };
 
